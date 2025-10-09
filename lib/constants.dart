@@ -1,0 +1,15 @@
+import 'package:flutter/material.dart';
+
+class AppColors {
+  static const Color primary = Colors.blue;
+  static const Color buttonBackground = Colors.black;
+  static const Color buttonText = Colors.white;
+}
+
+class AppText {
+  static const String appTitle = "FIGHT'S GYM";
+  static const String iniciarSesion = "INICIAR SESION";
+  static const String solicitarAqui = "SOLICITAR AQUI !!";
+  static const String pantallaIniciar = "pantalla de inicio de sesion";
+  static const String pantallaSolicitar = "pantalla solicitar";
+}
