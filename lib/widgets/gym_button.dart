@@ -14,8 +14,8 @@ class GymButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         foregroundColor: AppColors.buttonText,
         backgroundColor: AppColors.buttonBackground,
-        minimumSize: const Size(double.infinity, 48),
-        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        minimumSize: const Size(double.infinity, 68),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       child: Text(label),
     );

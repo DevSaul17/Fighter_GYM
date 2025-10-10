@@ -12,4 +12,5 @@ class AppText {
   static const String solicitarAqui = "SOLICITAR AQUI !!";
   static const String pantallaIniciar = "pantalla de inicio de sesion";
   static const String pantallaSolicitar = "pantalla solicitar";
+  static const String fuerzaMovilidad = "! Fuerza y movilidad a toda edad !! ";
 }
