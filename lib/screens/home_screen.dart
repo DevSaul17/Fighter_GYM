@@ -58,10 +58,16 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Imagen entre los botones
-            Image.asset(
-              'assets/main1.jpg', // Cambia la ruta por la de tu imagen
-              height: 320, // Ajusta el tamaño si lo deseas
+            // Imagen entre los botones con bordes redondeados
+            ClipRRect(
+              borderRadius: BorderRadius.circular(
+                34,
+              ), // Ajusta el radio si lo deseas
+              child: Image.asset(
+                'assets/main1.jpg', // Cambia la ruta por la de tu imagen
+                height: 320, // Ajusta el tamaño si lo deseas
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(height: 20),
             Align(
