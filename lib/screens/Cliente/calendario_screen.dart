@@ -348,7 +348,7 @@ class _CalendarioScreenState extends State<CalendarioScreen> {
     }
     return ListView.separated(
       itemCount: evs.length,
-      separatorBuilder: (_, __) => const Divider(),
+      separatorBuilder: (_, _) => const Divider(),
       itemBuilder: (context, i) =>
           ListTile(title: Text(evs[i]), leading: const Icon(Icons.event)),
     );

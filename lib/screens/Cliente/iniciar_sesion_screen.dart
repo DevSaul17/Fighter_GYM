@@ -45,7 +45,7 @@ class _IniciarSesionScreenState extends State<IniciarSesionScreen> {
               const SizedBox(height: 36),
 
               const Text(
-                'USER',
+                'USUARIO',
                 style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
               const SizedBox(height: 8),
@@ -64,7 +64,7 @@ class _IniciarSesionScreenState extends State<IniciarSesionScreen> {
 
               const SizedBox(height: 24),
               const Text(
-                'PASSWORD',
+                'CONTRASEÑA',
                 style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
               const SizedBox(height: 8),
