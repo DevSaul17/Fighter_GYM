@@ -19,3 +19,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/main1.jpg
+    - assets/ic_heartgym.jpg

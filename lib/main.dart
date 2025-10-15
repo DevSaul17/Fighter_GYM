@@ -4,7 +4,8 @@ import 'routes.dart';
 import 'screens/home_screen.dart';
 import 'screens/Cliente/iniciar_sesion_screen.dart';
 import 'screens/Cita/solicitar_screen.dart';
-
+import 'screens/Cita/seleccionar_screen.dart';
+import 'screens/Cita/confirmacion_screen.dart';
 void main() => runApp(const FightsGymApp());
 
 class FightsGymApp extends StatelessWidget {
@@ -27,6 +28,9 @@ class FightsGymApp extends StatelessWidget {
         Routes.home: (_) => const HomeScreen(),
         Routes.iniciarSesion: (_) => const IniciarSesionScreen(),
         Routes.solicitar: (_) => const SolicitarScreen(),
+        Routes.seleccionar: (_) => const SeleccionarScreen(),
+        Routes.confirmacion: (_) => const ConfirmacionScreen(),
+
       },
     );
   }
