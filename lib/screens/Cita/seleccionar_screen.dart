@@ -16,16 +16,23 @@ class SeleccionarScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        toolbarHeight: 80,
         centerTitle: true,
-        title: const Text('Seleccionar horarios'),
+        title: const Text('SELECCIONAR HORARIOS',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.bold
+        ),
+        ),
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text(
             '<',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 26,
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -36,15 +43,7 @@ class SeleccionarScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'SELECCIONAR HORARIOS',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 24),
+  
 
             // Lista en zigzag
             Expanded(
