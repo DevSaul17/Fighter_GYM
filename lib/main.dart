@@ -7,6 +7,8 @@ import 'screens/Cita/solicitar_screen.dart';
 import 'screens/Cliente/client_home_screen.dart';
 import 'screens/Cliente/registrar_horario_screen.dart';
 import 'screens/Cliente/calendario_screen.dart';
+import 'screens/Cita/seleccionar_screen.dart';
+import 'screens/Cita/confirmacion_screen.dart';
 
 void main() => runApp(const FightsGymApp());
 
@@ -30,6 +32,8 @@ class FightsGymApp extends StatelessWidget {
         Routes.clientHome: (_) => const ClientHomeScreen(),
         Routes.registrarHorario: (_) => const RegistrarHorarioScreen(),
         Routes.calendario: (_) => const CalendarioScreen(),
+        Routes.seleccionar: (_) => const SeleccionarScreen(),
+        Routes.confirmacion: (_) => const ConfirmacionScreen(),
       },
     );
   }
