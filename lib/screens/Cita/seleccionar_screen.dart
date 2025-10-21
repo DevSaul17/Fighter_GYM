@@ -1,35 +1,80 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Flutter UI toolkit
+import '../../routes.dart'; // Archivo con rutas nombradas (Routes.seleccionar, Routes.solicitar, etc.)
 
-class SeleccionarScreen extends StatelessWidget {
+class SeleccionarScreen extends StatefulWidget {
   const SeleccionarScreen({super.key});
 
   @override
+  State<SeleccionarScreen> createState() => _SeleccionarScreenState();
+}
+
+class _SeleccionarScreenState extends State<SeleccionarScreen> {
+  int? _selectedIndex; // Índice del horario seleccionado (null = ninguno)
+
+  @override
   Widget build(BuildContext context) {
+    // Cada entrada es un mapa con: 'texto' (String), 'color' (Color) y 'align' (Alignment).
+    // Para añadir/quitar horarios modifica este array.
+    // Cada horario ahora tiene 'dia' y 'hora' separados para permitir formato en dos líneas
     final horarios = [
-      {'texto': 'LUNES 11:00 a 12:00 AM   ＋', 'color': Colors.black, 'align': Alignment.centerLeft},
-      {'texto': 'MARTES 16:00 a 17:00 PM   ＋', 'color': Colors.red, 'align': Alignment.centerRight},
-      {'texto': 'MIÉRCOLES 10:00 a 11:00 AM   ＋', 'color': Colors.black, 'align': Alignment.centerLeft},
-      {'texto': 'JUEVES 14:00 a 15:00 PM   ＋', 'color': Colors.red, 'align': Alignment.centerRight},
-      {'texto': 'VIERNES 9:00 a 10:00 AM   ＋', 'color': Colors.black, 'align': Alignment.centerLeft},
+      {
+        'dia': 'LUNES',
+        'hora': '11:00 a 12:00 AM',
+        'color': Colors.black,
+        'align': Alignment.centerLeft,
+      },
+      {
+        'dia': 'MARTES',
+        'hora': '16:00 a 17:00 PM',
+        'color': Colors.red,
+        'align': Alignment.centerRight,
+      },
+      {
+        'dia': 'MIÉRCOLES',
+        'hora': '10:00 a 11:00 AM',
+        'color': Colors.black,
+        'align': Alignment.centerLeft,
+      },
+      {
+        'dia': 'JUEVES',
+        'hora': '14:00 a 15:00 PM',
+        'color': Colors.red,
+        'align': Alignment.centerRight,
+      },
+      {
+        'dia': 'VIERNES',
+        'hora': '9:00 a 10:00 AM',
+        'color': Colors.black,
+        'align': Alignment.centerLeft,
+      },
     ];
 
+    // Scaffold es la estructura principal de la pantalla: AppBar, body, bottom widgets.
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          Colors.white, // Fondo de pantalla (ajústalo si quieres otro color)
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        toolbarHeight: 80,
-        centerTitle: true,
-        title: const Text('SELECCIONAR HORARIOS',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold
-        ),
+        backgroundColor: const Color.fromARGB(
+          255,
+          255,
+          255,
+          255,
+        ), // Color del AppBar
+        toolbarHeight: 80, // Altura del AppBar
+        centerTitle: true, // Centrar el título
+        title: const Text(
+          'SELECCIONAR HORARIOS', // Título que aparece en el AppBar
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: TextButton(
+          // Botón izquierdo del AppBar. Por defecto hace `Navigator.pop` para volver.
           onPressed: () => Navigator.pop(context),
           child: const Text(
-            '<',
+            '<', // Puedes cambiar por un Icon(Icons.arrow_back)
             style: TextStyle(
               color: Color.fromARGB(255, 0, 0, 0),
               fontSize: 30,
@@ -43,33 +88,107 @@ class SeleccionarScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-  
-
-            // Lista en zigzag
+            // Lista en zigzag (los elementos alternan posición por `alignment`)
             Expanded(
               child: ListView.builder(
                 itemCount: horarios.length,
                 itemBuilder: (context, index) {
                   final horario = horarios[index];
+                  // Si este índice está seleccionado
+                  final bool isSelected = _selectedIndex == index;
+
+                  // Cada fila usa Align para posicionarla a la izquierda o derecha
                   return Align(
                     alignment: horario['align'] as Alignment,
                     child: Container(
                       margin: EdgeInsets.only(
-                        bottom: index == horarios.length - 1 ? 70 : 14, // más espacio al final
+                        bottom: index == horarios.length - 1 ? 70 : 14,
                       ),
-                      width: 280,
-                      height: 77,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: 88,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: horario['color'] as Color,
+                          backgroundColor: isSelected
+                              ? Colors.white
+                              : (horario['color'] as Color),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
+                            side: isSelected
+                                ? const BorderSide(
+                                    color: Colors.black,
+                                    width: 2,
+                                  )
+                                : BorderSide.none,
                           ),
                         ),
-                        onPressed: () {},
-                        child: Text(
-                          horario['texto'] as String,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                        onPressed: () => setState(() => _selectedIndex = index),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Día arriba, hora abajo
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  horario['dia'] as String,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  horario['hora'] as String,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Indicador a la derecha: '+' por defecto, '✓' si está seleccionado
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.white24,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.black,
+                                      )
+                                    : const Text(
+                                        '+',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -78,17 +197,34 @@ class SeleccionarScreen extends StatelessWidget {
               ),
             ),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/confirmacion');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text(
-                'REGISTRAR CITA',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+            // Botón de acción inferior: centrado y con ancho relativo.
+            // Cambia `width` y `minimumSize` para modificar ancho/altura.
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.75, // 75% ancho
+                child: ElevatedButton(
+                  onPressed: _selectedIndex != null
+                      ? () {
+                          // Navega a la pantalla de solicitud con la selección
+                          Navigator.pushNamed(context, Routes.solicitar);
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _selectedIndex != null
+                        ? Colors.black
+                        : Colors.grey,
+                    minimumSize: const Size.fromHeight(60), // Altura del botón
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        20,
+                      ), // Radio más grande
+                    ),
+                  ),
+                  child: const Text(
+                    'REGISTRAR HORARIO', // Texto del botón
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
               ),
             ),
           ],

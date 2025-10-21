@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                 child: GymButton(
                   label: AppText.solicitarAqui,
                   onPressed: () =>
-                      Navigator.pushNamed(context, Routes.solicitar),
+                      Navigator.pushNamed(context, Routes.seleccionar),
                 ),
               ),
             ),
