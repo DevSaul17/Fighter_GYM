@@ -7,4 +7,7 @@ class Routes {
   static const String clientHome = '/client_home';
   static const String registrarHorario = '/registrar_horario';
   static const String calendario = '/calendario';
+  static const String verCita = '/ver_cita';
+  static const String citas = '/citas';
+  static const String horariosCitas = '/horarios_citas';
 }

@@ -242,23 +242,23 @@ class _SolicitarScreenState extends State<SolicitarScreen> {
                   items: objetivos
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
-                  value: _selectedObjetivo,
+                  initialValue: _selectedObjetivo,
                   onChanged: (v) => setState(() => _selectedObjetivo = v),
                   hint: const Text('----Seleccionar----'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Requerido';
-                    if (v == '----Seleccionar----')
+                    if (v == '----Seleccionar----') {
                       return 'Selecciona un objetivo';
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
                 if (_bmi != null)
                   Text(
-                    'IMC: ${_bmi!.toStringAsFixed(1)}' +
-                        (_bmi! < 18.5
+                    'IMC: ${_bmi!.toStringAsFixed(1)}${_bmi! < 18.5
                             ? ' — Bajo peso'
-                            : (_bmi! > 29.9 ? ' — Sobrepeso/obesidad' : '')),
+                            : (_bmi! > 29.9 ? ' — Sobrepeso/obesidad' : '')}',
                     style: TextStyle(
                       color: (_bmi! < 18.5 || _bmi! > 29.9)
                           ? Colors.red

@@ -81,6 +81,17 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FractionallySizedBox(
+                widthFactor: buttonWidthFactor,
+                child: GymButton(
+                  label: AppText.verCita,
+                  onPressed: () => Navigator.pushNamed(context, Routes.verCita),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'; // Flutter UI toolkit
 import '../../routes.dart'; // Archivo con rutas nombradas (Routes.seleccionar, Routes.solicitar, etc.)
+import '../../database/database_helper.dart';
 
 class SeleccionarScreen extends StatefulWidget {
   const SeleccionarScreen({super.key});
@@ -10,6 +11,20 @@ class SeleccionarScreen extends StatefulWidget {
 
 class _SeleccionarScreenState extends State<SeleccionarScreen> {
   int? _selectedIndex; // Índice del horario seleccionado (null = ninguno)
+  List<Map<String, dynamic>> _citas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCitas();
+  }
+
+  Future<void> _loadCitas() async {
+    final citas = await DatabaseHelper.instance.getCitas();
+    setState(() {
+      _citas = citas;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +63,49 @@ class _SeleccionarScreenState extends State<SeleccionarScreen> {
         'align': Alignment.centerLeft,
       },
     ];
+
+    // Si hay citas en la BD, mapearlas a un formato similar a `horarios`.
+    final displayed = <Map<String, dynamic>>[];
+    if (_citas.isNotEmpty) {
+      // Alternar alineación/colores para mantener estilo zigzag
+      for (var i = 0; i < _citas.length; i++) {
+        final c = _citas[i];
+        // Esperamos fecha en formato 'YYYY-MM-DD' y hora 'HH:mm'
+        String fechaStr = c['fecha'] as String? ?? '';
+        String horaStr = c['hora'] as String? ?? '';
+        String diaStr = '';
+        try {
+          final dt = DateTime.parse(fechaStr);
+          const dias = [
+            'LUNES',
+            'MARTES',
+            'MIÉRCOLES',
+            'JUEVES',
+            'VIERNES',
+            'SÁBADO',
+            'DOMINGO',
+          ];
+          // DateTime.weekday: 1 = Monday
+          diaStr = dias[dt.weekday - 1];
+          // Formato de fecha DD/MM/YYYY
+          fechaStr =
+              '${dt.day.toString().padLeft(2, '0')}/'
+              '${dt.month.toString().padLeft(2, '0')}/'
+              '${dt.year}';
+        } catch (_) {
+          // si no se puede parsear, dejar la cadena original
+        }
+
+        displayed.add({
+          'id': c['id'],
+          'dia': diaStr,
+          'fecha': fechaStr,
+          'hora': horaStr,
+          'color': i % 2 == 0 ? Colors.black : Colors.red,
+          'align': i % 2 == 0 ? Alignment.centerLeft : Alignment.centerRight,
+        });
+      }
+    }
 
     // Scaffold es la estructura principal de la pantalla: AppBar, body, bottom widgets.
     return Scaffold(
@@ -91,9 +149,11 @@ class _SeleccionarScreenState extends State<SeleccionarScreen> {
             // Lista en zigzag (los elementos alternan posición por `alignment`)
             Expanded(
               child: ListView.builder(
-                itemCount: horarios.length,
+                itemCount: (displayed.isNotEmpty ? displayed : horarios).length,
                 itemBuilder: (context, index) {
-                  final horario = horarios[index];
+                  final horario = (displayed.isNotEmpty
+                      ? displayed
+                      : horarios)[index];
                   // Si este índice está seleccionado
                   final bool isSelected = _selectedIndex == index;
 
@@ -137,7 +197,7 @@ class _SeleccionarScreenState extends State<SeleccionarScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  horario['dia'] as String,
+                                  (horario['dia'] as String?) ?? '',
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.black
@@ -148,7 +208,8 @@ class _SeleccionarScreenState extends State<SeleccionarScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  horario['hora'] as String,
+                                  // Mostrar fecha y hora en la segunda línea
+                                  '${(horario['fecha'] as String?) ?? ''}  ${(horario['hora'] as String?) ?? ''}',
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.black
