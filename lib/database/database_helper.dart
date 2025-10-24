@@ -77,4 +77,9 @@ class DatabaseHelper {
     final db = await instance.database;
     return await db.delete('citas', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<int> updateCita(int id, Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.update('citas', row, where: 'id = ?', whereArgs: [id]);
+  }
 }

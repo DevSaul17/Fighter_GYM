@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../routes.dart';
+import '../../database/database_helper.dart';
 import 'solicitar_validations.dart';
 
 class SolicitarScreen extends StatefulWidget {
@@ -24,16 +25,61 @@ class _SolicitarScreenState extends State<SolicitarScreen> {
 
   String? _selectedObjetivo;
   double? _bmi;
+  Map<String, dynamic>? _selectedCita;
+  List<String> _objetivos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadObjetivos();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && _selectedCita == null) {
+      try {
+        _selectedCita = Map<String, dynamic>.from(args as Map);
+      } catch (_) {
+        // ignore
+      }
+    }
+  }
+
+  Future<void> _loadObjetivos() async {
+    final rows = await DatabaseHelper.instance.getProspectos();
+    final set = <String>{};
+    for (final r in rows) {
+      final obj = (r['objetivo'] as String?) ?? '';
+      if (obj.trim().isNotEmpty) set.add(obj);
+    }
+    setState(() {
+      _objetivos = set.toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<String> objetivos = [
-      '----Seleccionar----',
-      'Movilidad, coordinación y fuerza',
-      'Fortalecimiento muscular',
-      'Quemar de grasa',
-      'Entrenamiento funcional',
+    // Valores por defecto que están permitidos en la tabla `prospectos` (CHECK)
+    final List<String> defaultObjetivos = [
+      'Movilidad, Coordinacion y Fuerza',
+      'Desarrollo Muscular',
+      'Pérdida de Grasa Corporal',
+      'Recuperación de Habilidades Funcionales',
     ];
+
+    // Merge: empezar por los por defecto (en ese orden), y añadir cualquier objetivo
+    // adicional que venga de la BD sin duplicados.
+    final merged = <String>[];
+    merged.addAll(defaultObjetivos);
+    for (final o in _objetivos) {
+      if (o.trim().isEmpty) continue;
+      if (!merged.contains(o)) merged.add(o);
+    }
+
+    // Lista final con la opción placeholder al inicio
+    final objetivos = ['----Seleccionar----', ...merged];
 
     return Scaffold(
       appBar: AppBar(
@@ -254,11 +300,24 @@ class _SolicitarScreenState extends State<SolicitarScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
+                if (_selectedCita != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'CITA SELECCIONADA',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${_selectedCita?['dia'] ?? ''} ${_selectedCita?['fecha'] ?? ''} ${_selectedCita?['hora'] ?? ''}',
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
                 if (_bmi != null)
                   Text(
-                    'IMC: ${_bmi!.toStringAsFixed(1)}${_bmi! < 18.5
-                            ? ' — Bajo peso'
-                            : (_bmi! > 29.9 ? ' — Sobrepeso/obesidad' : '')}',
+                    'IMC: ${_bmi!.toStringAsFixed(1)}${_bmi! < 18.5 ? ' — Bajo peso' : (_bmi! > 29.9 ? ' — Sobrepeso/obesidad' : '')}',
                     style: TextStyle(
                       color: (_bmi! < 18.5 || _bmi! > 29.9)
                           ? Colors.red
@@ -275,7 +334,7 @@ class _SolicitarScreenState extends State<SolicitarScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(24.0),
         child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             final valid = _formKey.currentState?.validate() ?? false;
             if (!valid) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -294,7 +353,33 @@ class _SolicitarScreenState extends State<SolicitarScreen> {
               _apellidosController.text,
             );
             _updateBmi();
-            Navigator.pushNamed(context, Routes.confirmacion);
+
+            final row = <String, dynamic>{
+              'nombres': _nombreController.text.trim(),
+              'apellidos': _apellidosController.text.trim(),
+              'celular': _celularController.text.replaceAll(RegExp(r'\D'), ''),
+              'edad': int.tryParse(_edadController.text) ?? 0,
+              'peso':
+                  double.tryParse(_pesoController.text.replaceAll(',', '.')) ??
+                  0.0,
+              'talla':
+                  double.tryParse(_tallaController.text.replaceAll(',', '.')) ??
+                  0.0,
+              'genero': _selectedGender,
+              'objetivo': _selectedObjetivo,
+              'cita_id': _selectedCita != null ? _selectedCita!['id'] : null,
+            };
+
+            try {
+              await DatabaseHelper.instance.insertProspecto(row);
+              // ignore: use_build_context_synchronously
+              Navigator.pushNamed(context, Routes.confirmacion);
+            } catch (e) {
+              // ignore: use_build_context_synchronously
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error al registrar: ${e.toString()}')),
+              );
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,

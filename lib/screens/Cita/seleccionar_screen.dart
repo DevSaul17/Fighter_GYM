@@ -266,8 +266,26 @@ class _SeleccionarScreenState extends State<SeleccionarScreen> {
                 child: ElevatedButton(
                   onPressed: _selectedIndex != null
                       ? () {
-                          // Navega a la pantalla de solicitud con la selección
-                          Navigator.pushNamed(context, Routes.solicitar);
+                          // Construir el mapa de cita seleccionado (puede venir de displayed o de horarios)
+                          final source = (displayed.isNotEmpty
+                              ? displayed
+                              : horarios);
+                          final selected = source[_selectedIndex!];
+                          // Normalizar claves: id (opcional), fecha, hora, dia
+                          final Map<String, dynamic> selectedCita = {
+                            'id': selected.containsKey('id')
+                                ? selected['id']
+                                : null,
+                            'fecha':
+                                selected['fecha'] ?? selected['hora'] ?? '',
+                            'hora': selected['hora'] ?? '',
+                            'dia': selected['dia'] ?? '',
+                          };
+                          Navigator.pushNamed(
+                            context,
+                            Routes.solicitar,
+                            arguments: selectedCita,
+                          );
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
