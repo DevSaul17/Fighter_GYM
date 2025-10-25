@@ -30,6 +30,7 @@ class _NegocioScreenState extends State<NegocioScreen>
   TimeOfDay? _horHora;
   int? _horEntrenadorId;
   List<Map<String, dynamic>> _entrenadores = [];
+  List<Map<String, dynamic>> _horarios = [];
 
   // Entrenadores state for list/edit
   int? _editingEntrenadorId;
@@ -45,6 +46,12 @@ class _NegocioScreenState extends State<NegocioScreen>
     _tabController = TabController(length: 3, vsync: this);
     _loadEntrenadores();
     _loadPlanes();
+    _loadHorarios();
+  }
+
+  Future<void> _loadHorarios() async {
+    final data = await DatabaseHelper.instance.getHorarios();
+    if (mounted) setState(() => _horarios = data);
   }
 
   Future<void> _loadPlanes() async {
@@ -320,6 +327,8 @@ class _NegocioScreenState extends State<NegocioScreen>
         _horEntrenadorId = null;
       });
     }
+    // refresh list in case there are stored horarios
+    await _loadHorarios();
   }
 
   @override
@@ -478,6 +487,42 @@ class _NegocioScreenState extends State<NegocioScreen>
                     onPressed: _saveHorario,
                     child: const Text('Registrar Horario (vista)'),
                   ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Horarios registrados',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  _horarios.isEmpty
+                      ? const Text('No hay horarios registrados.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _horarios.length,
+                          itemBuilder: (context, i) {
+                            final h = _horarios[i];
+                            final fecha = h['fecha'] ?? '';
+                            final hora = h['hora'] ?? '';
+                            final cliente =
+                                '${h['cliente_nombres'] ?? ''} ${h['cliente_apellidos'] ?? ''}'
+                                    .trim();
+                            final entrenador =
+                                '${h['entrenador_nombres'] ?? ''} ${h['entrenador_apellidos'] ?? ''}'
+                                    .trim();
+                            final estado = h['estado'] ?? '';
+                            return Card(
+                              child: ListTile(
+                                title: Text('$fecha $hora'),
+                                subtitle: Text(
+                                  'Cliente: ${cliente.isEmpty ? '-' : cliente}\nEntrenador: ${entrenador.isEmpty ? '-' : entrenador}\nEstado: $estado',
+                                ),
+                                isThreeLine: true,
+                              ),
+                            );
+                          },
+                        ),
                 ],
               ),
             ),

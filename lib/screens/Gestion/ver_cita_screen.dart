@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 import '../../routes.dart';
 import '../../widgets/gym_button.dart';
+import 'informes_screen.dart';
 
 class VerCitaScreen extends StatelessWidget {
   const VerCitaScreen({super.key});
@@ -55,6 +56,17 @@ class VerCitaScreen extends StatelessWidget {
               child: GymButton(
                 label: 'Membresía',
                 onPressed: () => Navigator.pushNamed(context, Routes.membresia),
+              ),
+            ),
+            const SizedBox(height: 16),
+            FractionallySizedBox(
+              widthFactor: 0.9,
+              child: GymButton(
+                label: 'Informes',
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InformesScreen()),
+                ),
               ),
             ),
           ],

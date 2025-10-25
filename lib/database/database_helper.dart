@@ -403,6 +403,21 @@ class DatabaseHelper {
     return await db.insert('horarios', row);
   }
 
+  /// Obtiene los horarios, incluyendo información del cliente (vía membresia) y del entrenador.
+  Future<List<Map<String, dynamic>>> getHorarios() async {
+    final db = await instance.database;
+    final result = await db.rawQuery('''
+      SELECT h.*, m.id_cliente, c.nombres as cliente_nombres, c.apellidos as cliente_apellidos,
+             e.nombres as entrenador_nombres, e.apellidos as entrenador_apellidos
+      FROM horarios h
+      LEFT JOIN membresias m ON h.id_membresia = m.id
+      LEFT JOIN clientes c ON m.id_cliente = c.id
+      LEFT JOIN entrenadores e ON h.id_entrenador = e.id
+      ORDER BY h.fecha DESC, h.hora DESC
+    ''');
+    return result;
+  }
+
   // MEMBRESIAS methods
   Future<int> insertMembresia(Map<String, dynamic> row) async {
     final db = await instance.database;
@@ -422,6 +437,24 @@ class DatabaseHelper {
       ORDER BY m.fecha_inicio DESC
     ''');
     return result;
+  }
+
+  /// Obtiene la membresía activa más reciente de un cliente
+  Future<Map<String, dynamic>?> getMembresiaByCliente(int clienteId) async {
+    final db = await instance.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT m.*, p.nombre as plan_nombre
+      FROM membresias m
+      JOIN planes p ON m.id_plan = p.id
+      WHERE m.id_cliente = ? AND m.activa = 1
+      ORDER BY m.fecha_creacion DESC
+      LIMIT 1
+    ''',
+      [clienteId],
+    );
+    if (res.isNotEmpty) return res.first;
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> getClientesSinMembresia() async {
@@ -447,6 +480,46 @@ class DatabaseHelper {
     return result;
   }
 
+  /// Reemplaza los días de una membresía (borra los previos e inserta los nuevos)
+  Future<void> setDiasMembresia(int idMembresia, List<int> dias) async {
+    final db = await instance.database;
+    final batch = db.batch();
+    await db.delete(
+      'dias_membresia',
+      where: 'id_membresia = ?',
+      whereArgs: [idMembresia],
+    );
+    for (final d in dias) {
+      batch.insert('dias_membresia', {
+        'id_membresia': idMembresia,
+        'dia_semana': d,
+      });
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Obtiene los días (1-7) asociados a una membresía
+  Future<List<int>> getDiasMembresia(int idMembresia) async {
+    final db = await instance.database;
+    final rows = await db.query(
+      'dias_membresia',
+      where: 'id_membresia = ?',
+      whereArgs: [idMembresia],
+    );
+    return rows.map<int>((r) => (r['dia_semana'] as num).toInt()).toList();
+  }
+
+  /// Actualiza la hora de una membresía (formato HH:MM)
+  Future<int> updateMembresiaHora(int id, String hora) async {
+    final db = await instance.database;
+    return await db.update(
+      'membresias',
+      {'hora': hora},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   // PAGOS
   Future<int> insertPago(Map<String, dynamic> row) async {
     final db = await instance.database;
@@ -463,6 +536,50 @@ class DatabaseHelper {
       ORDER BY p.fecha_pago DESC
     ''');
     return result;
+  }
+
+  // FACTURAS
+  Future<int> insertFactura(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('facturas', row);
+  }
+
+  /// Obtiene facturas con información de pago y cliente para mostrar/listar.
+  Future<List<Map<String, dynamic>>> getFacturas() async {
+    final db = await instance.database;
+    final result = await db.rawQuery('''
+      SELECT f.*, p.monto as pago_monto, p.fecha_pago, c.nombres as cliente_nombres, c.apellidos as cliente_apellidos,
+             m.id as id_membresia, p.id_membresia
+      FROM facturas f
+      JOIN pagos p ON f.id_pago = p.id
+      LEFT JOIN clientes c ON p.id_cliente = c.id
+      LEFT JOIN membresias m ON p.id_membresia = m.id OR m.id_cliente = p.id_cliente
+      ORDER BY f.fecha_factura DESC
+    ''');
+    return result;
+  }
+
+  /// Genera el siguiente número de factura con prefijo 'G0000' evitando repeticiones.
+  /// Busca el máximo sufijo numérico ya usado y retorna el siguiente entero como string.
+  Future<String> getNextNumeroFactura() async {
+    final db = await instance.database;
+    // numero_factura tiene formato 'G0000<numero>' — extraemos la parte numérica y tomamos el MAX
+    final res = await db.rawQuery('''
+      SELECT MAX(CAST(substr(numero_factura, 6) AS INTEGER)) as maxn
+      FROM facturas
+      WHERE numero_factura LIKE 'G0000%'
+    ''');
+    int maxn = 0;
+    if (res.isNotEmpty) {
+      final v = res.first['maxn'];
+      if (v is int) {
+        maxn = v;
+      } else if (v is String)
+        // ignore: curly_braces_in_flow_control_structures
+        maxn = int.tryParse(v) ?? 0;
+    }
+    final next = maxn + 1;
+    return 'G0000$next';
   }
 
   /// Valida si una fecha y hora (por partes) está dentro de la disponibilidad del gimnasio.
