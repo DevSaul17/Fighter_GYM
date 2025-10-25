@@ -9,9 +9,12 @@ import 'screens/Cliente/registrar_horario_screen.dart';
 import 'screens/Cliente/calendario_screen.dart';
 import 'screens/Cita/seleccionar_screen.dart';
 import 'screens/Cita/confirmacion_screen.dart';
-import 'screens/Cita/ver_cita_screen.dart';
-import 'screens/Cita/citas_screen.dart';
-import 'screens/Cita/horarios_citas_screen.dart';
+import 'screens/Gestion/ver_cita_screen.dart';
+import 'screens/Gestion/gestionar_cliente_screen.dart';
+import 'screens/Gestion/citas_screen.dart';
+import 'screens/Gestion/horarios_citas_screen.dart';
+import 'screens/Gestion/negocio_screen.dart';
+import 'screens/Gestion/membresia_screen.dart';
 
 void main() => runApp(const FightsGymApp());
 
@@ -38,8 +41,11 @@ class FightsGymApp extends StatelessWidget {
         Routes.seleccionar: (_) => const SeleccionarScreen(),
         Routes.confirmacion: (_) => const ConfirmacionScreen(),
         Routes.verCita: (_) => const VerCitaScreen(),
+        Routes.gestionarCliente: (_) => const GestionarClienteScreen(),
         Routes.citas: (_) => const CitasScreen(),
         Routes.horariosCitas: (_) => const HorariosCitasScreen(),
+        Routes.negocio: (_) => const NegocioScreen(),
+        Routes.membresia: (_) => const MembresiaScreen(),
       },
     );
   }

@@ -87,7 +87,7 @@ class HomeScreen extends StatelessWidget {
               child: FractionallySizedBox(
                 widthFactor: buttonWidthFactor,
                 child: GymButton(
-                  label: AppText.verCita,
+                  label: AppText.gestionar,
                   onPressed: () => Navigator.pushNamed(context, Routes.verCita),
                 ),
               ),

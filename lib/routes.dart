@@ -8,6 +8,9 @@ class Routes {
   static const String registrarHorario = '/registrar_horario';
   static const String calendario = '/calendario';
   static const String verCita = '/ver_cita';
+  static const String gestionarCliente = '/gestionar_cliente';
   static const String citas = '/citas';
   static const String horariosCitas = '/horarios_citas';
+  static const String negocio = '/negocio';
+  static const String membresia = '/membresia';
 }
