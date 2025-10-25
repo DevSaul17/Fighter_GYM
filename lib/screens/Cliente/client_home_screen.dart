@@ -4,7 +4,15 @@ import '../../constants.dart';
 import '../../routes.dart';
 
 class ClientHomeScreen extends StatefulWidget {
-  const ClientHomeScreen({super.key});
+  final String? clienteNombre;
+  final double? clientePeso;
+  final double? clienteTalla;
+  const ClientHomeScreen({
+    super.key,
+    this.clienteNombre,
+    this.clientePeso,
+    this.clienteTalla,
+  });
 
   @override
   State<ClientHomeScreen> createState() => _ClientHomeScreenState();
@@ -99,11 +107,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 8),
-          const Center(
+          Center(
             child: Text(
-              'Bienvenido\ndenuevo! , Saul',
+              'Bienvenido devuelta,\n${widget.clienteNombre != null && widget.clienteNombre!.isNotEmpty ? widget.clienteNombre!.toUpperCase() : ''}',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 20),
@@ -141,11 +149,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'Peso: 60 kg\nTalla : 1.70 mts',
+                      'Peso: ${_formatDouble(widget.clientePeso)} kg\nTalla: ${_formatDouble(widget.clienteTalla, decimals: 2)} mts',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -179,6 +187,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         ],
       ),
     );
+  }
+
+  String _formatDouble(double? v, {int decimals = 2}) {
+    if (v == null) return '-';
+    // If it's a whole number, show without decimals
+    if (v == v.roundToDouble()) return v.toStringAsFixed(0);
+    return v.toStringAsFixed(decimals);
   }
 
   String _formatDuration(Duration d) {

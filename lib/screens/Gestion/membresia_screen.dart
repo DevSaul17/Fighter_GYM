@@ -408,7 +408,7 @@ class _MembresiaScreenState extends State<MembresiaScreen>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         DropdownButtonFormField<int>(
-                          value: _pagoClienteId,
+                          initialValue: _pagoClienteId,
                           items: _clientesAll
                               .map(
                                 (c) => DropdownMenuItem<int>(
@@ -439,7 +439,7 @@ class _MembresiaScreenState extends State<MembresiaScreen>
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<int>(
-                          value: _mesesAdelantados,
+                          initialValue: _mesesAdelantados,
                           items: List.generate(12, (i) => i + 1)
                               .map(
                                 (m) => DropdownMenuItem<int>(

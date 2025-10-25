@@ -305,6 +305,19 @@ class DatabaseHelper {
     return await db.query('clientes', orderBy: 'nombres, apellidos');
   }
 
+  /// Obtiene un cliente por su DNI. Retorna null si no existe.
+  Future<Map<String, dynamic>?> getClienteByDni(String dni) async {
+    final db = await instance.database;
+    final res = await db.query(
+      'clientes',
+      where: 'dni = ?',
+      whereArgs: [dni],
+      limit: 1,
+    );
+    if (res.isNotEmpty) return res.first;
+    return null;
+  }
+
   Future<int> deleteCliente(int id) async {
     final db = await instance.database;
     return await db.delete('clientes', where: 'id = ?', whereArgs: [id]);
