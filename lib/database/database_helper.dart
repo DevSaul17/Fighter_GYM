@@ -133,6 +133,16 @@ class DatabaseHelper {
       fecha_registro DATETIME DEFAULT (datetime('now'))
     );
   ''');
+        // Events table for calendario (does not interfere with existing schema)
+        await db.execute('''
+    CREATE TABLE IF NOT EXISTS eventos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      titulo TEXT NOT NULL,
+      descripcion TEXT,
+      fecha TEXT NOT NULL, -- stored as YYYY-MM-DD
+      fecha_creacion DATETIME DEFAULT (datetime('now'))
+    );
+  ''');
       },
     );
   }
@@ -294,6 +304,33 @@ class DatabaseHelper {
     return await db.insert('prospectos', row);
   }
 
+  // Eventos (calendario)
+  Future<int> insertEvento(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('eventos', row);
+  }
+
+  /// Obtiene eventos entre dos fechas (incluyendo los límites). Fechas en formato 'YYYY-MM-DD'
+  Future<List<Map<String, dynamic>>> getEventosBetween(
+    String fechaInicio,
+    String fechaFin,
+  ) async {
+    final db = await instance.database;
+    return await db.rawQuery(
+      '''
+      SELECT * FROM eventos
+      WHERE fecha BETWEEN ? AND ?
+      ORDER BY fecha, fecha_creacion DESC
+    ''',
+      [fechaInicio, fechaFin],
+    );
+  }
+
+  Future<int> deleteEvento(int id) async {
+    final db = await instance.database;
+    return await db.delete('eventos', where: 'id = ?', whereArgs: [id]);
+  }
+
   // CLIENTES methods
   Future<int> insertCliente(Map<String, dynamic> row) async {
     final db = await instance.database;
@@ -316,6 +353,18 @@ class DatabaseHelper {
     );
     if (res.isNotEmpty) return res.first;
     return null;
+  }
+
+  /// Valida un DNI para prevenir entradas no esperadas.
+  ///
+  /// Esta función no es un reemplazo de las consultas parametrizadas
+  /// (las cuales ya se usan), pero permite validar que la entrada
+  /// cumpla con el formato esperado (solo dígitos y longitud razonable)
+  /// evitando valores extraños antes de llamar a las consultas.
+  bool isValidDni(String dni) {
+    // Aceptamos entre 6 y 12 dígitos (ajustable según requerimientos locales)
+    final re = RegExp(r'^\d{6,12}$');
+    return re.hasMatch(dni);
   }
 
   Future<int> deleteCliente(int id) async {
