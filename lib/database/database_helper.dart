@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -334,7 +335,31 @@ class DatabaseHelper {
   // CLIENTES methods
   Future<int> insertCliente(Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.insert('clientes', row);
+    // Ensure password is hashed before inserting. Copy map to avoid mutating caller map.
+    final toInsert = Map<String, dynamic>.from(row);
+    final rawPass = (toInsert['contrasena_hash'] ?? '').toString();
+    if (rawPass.isNotEmpty) {
+      // If it looks like an existing bcrypt hash (starts with "$2"), assume it's already hashed.
+      if (!rawPass.startsWith(r'\$2')) {
+        toInsert['contrasena_hash'] = hashPassword(rawPass);
+      }
+    }
+    return await db.insert('clientes', toInsert);
+  }
+
+  /// Hash a plain-text password using bcrypt.
+  String hashPassword(String plain) {
+    // gensalt default rounds is acceptable; you can tune rounds via BCrypt.gensaltWithRounds
+    return BCrypt.hashpw(plain, BCrypt.gensalt());
+  }
+
+  /// Verify a plain password against a stored bcrypt hash.
+  bool verifyPassword(String plain, String hash) {
+    try {
+      return BCrypt.checkpw(plain, hash);
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<List<Map<String, dynamic>>> getClientes() async {

@@ -7,7 +7,7 @@ class AppColors {
 }
 
 class AppText {
-  static const String appTitle = "FIGHT'S GYM";
+  static const String appTitle = "FIGHTER'S GYM";
   static const String iniciarSesion = "INICIAR SESION";
   static const String solicitarAqui = "SOLICITAR AQUI !!";
   static const String verCita = "VER CITA";

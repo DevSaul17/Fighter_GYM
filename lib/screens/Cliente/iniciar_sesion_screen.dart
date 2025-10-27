@@ -166,7 +166,7 @@ class _IniciarSesionScreenState extends State<IniciarSesionScreen> {
                         .getClienteByDni(dni);
                     if (cliente == null) {
                       if (!mounted) return;
-                      await showDialog<void>(
+                      showDialog<void>(
                         // ignore: use_build_context_synchronously
                         context: context,
                         builder: (ctx) => AlertDialog(
@@ -187,9 +187,13 @@ class _IniciarSesionScreenState extends State<IniciarSesionScreen> {
 
                     final stored = (cliente['contrasena_hash'] ?? '')
                         .toString();
-                    if (stored != pass) {
+                    final verified = DatabaseHelper.instance.verifyPassword(
+                      pass,
+                      stored,
+                    );
+                    if (!verified) {
                       if (!mounted) return;
-                      await showDialog<void>(
+                      showDialog<void>(
                         // ignore: use_build_context_synchronously
                         context: context,
                         builder: (ctx) => AlertDialog(
